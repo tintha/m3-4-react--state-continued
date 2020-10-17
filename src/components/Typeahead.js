@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import Styled from 'styled-components'
+import { categories } from '../data';
 
 const Wrapper = Styled.div`
     display: flex;
@@ -43,13 +44,24 @@ const Ul = Styled.ul`
    
 `;
 
+const Prediction = Styled.span`
+    font-weight: bold;
+`;
+
+const Cat = Styled.p`
+    color: purple;
+    font-style: italic;
+`;
+
 const Typeahead = (props) => {
     const {suggestions, handleSelect} = props;
     const [userInput, setUserInput] = useState("");
-    const filtered = suggestions.filter((book) => book.title.toLowerCase().match(userInput.toLowerCase()) &&
-        userInput !== "");
-    console.log(filtered.length);
-  
+    
+    const filtered = suggestions.filter((book) => 
+        book.title.toLowerCase().match(userInput.toLowerCase()) &&
+        userInput !== ""
+    );
+    
 
     return <>
     <div>
@@ -74,7 +86,14 @@ const Typeahead = (props) => {
                     {filtered.length === 0 ? null :
 
                     filtered.map((book) => {
-                        return <Li key={book.id} onClick={() => handleSelect(book.title)}>{book.title}</Li>
+                        let userPart = userInput.toLowerCase();
+                        let theBook = book.title.toLowerCase();
+                        let firstIndexOf = theBook.indexOf(userPart);
+                        let firstHalf = book.title.slice(0, firstIndexOf+userInput.length);
+                        let secondHalf = book.title.slice(userInput.length+firstIndexOf);
+                        let catTitle = categories[book.categoryId].name;
+                        console.log(catTitle);
+                    return <Li key={book.id} onClick={() => handleSelect(book.title)}><span>{firstHalf}<Prediction>{secondHalf}</Prediction></span><Cat>{catTitle}</Cat></Li>
                     })}
                 </Ul>
                 </Wrapper>
