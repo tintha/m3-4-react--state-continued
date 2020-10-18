@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import data from '../data';
 import GlobalStyles from './GlobalStyles';
 import Styled from 'styled-components';
@@ -12,12 +12,12 @@ const Wrapper = Styled.div`
 `;
 
 const App = (props) => {
-
   return (
     <>
       <GlobalStyles />
       <Wrapper>
       <Typeahead
+        categories={data.categories}
         suggestions={data.books}
         handleSelect={(suggestions => {
           window.alert(suggestions)
