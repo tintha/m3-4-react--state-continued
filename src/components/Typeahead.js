@@ -1,16 +1,15 @@
 import React, {useState} from 'react';
 import Styled from 'styled-components'
+import Suggestion from './Suggestion';
 
 const Typeahead = (props) => {
     const {suggestions, categories, handleSelect} = props;
     const [userInput, setUserInput] = useState("");
     const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
-    const [isSelected, setIsSelected] = useState(false);
     
     const filtered = suggestions.filter((book) => 
         book.title.toLowerCase().match(userInput.toLowerCase()) &&
         userInput !== "" && userInput.length >= 2);
-
 
     return <>
               <Input 
@@ -20,7 +19,7 @@ const Typeahead = (props) => {
                 onKeyDown={(e) => {
                   switch (e.key) {
                     case "Enter": {
-                      handleSelect(e.target.value);
+                      handleSelect(filtered[selectedSuggestionIndex].title);
                       return;
                     }
                     case "ArrowUp": {
@@ -37,28 +36,29 @@ const Typeahead = (props) => {
                 <ClearButton onClick={() => setUserInput("")}>
                     Clear
                 </ClearButton>
-                <Ul>
-                    {filtered.length === 0 ? null :
+                <Wrapper>
+                    {filtered.length >= 1 && 
                     filtered.map((book, index) => {
+                      const isSelected = index === selectedSuggestionIndex;
                       const userPart = userInput.toLowerCase();
                       const theBook = book.title.toLowerCase();
                       const firstIndexOf = theBook.indexOf(userPart);
                       const firstHalf = book.title.slice(0, firstIndexOf+userInput.length);
                       const secondHalf = book.title.slice(userInput.length+firstIndexOf);
                       const catTitle = categories[book.categoryId].name;
-                    return <Li
+                    return <Suggestion
                               key={book.id} 
-                              onClick={() => handleSelect(book.title)}
-                              onMouseEnter={() => setIsSelected(!isSelected)} 
-                              style={{
-                                background: isSelected ? 'hsla(50deg, 100%, 80%, 0.25)' : 'transparent',
-                              }}
-                            >
-                              <span>{firstHalf}<Prediction>{secondHalf}</Prediction></span>
-                              <Cat>{catTitle}</Cat>
-                            </Li>
-                    })}
-                </Ul>
+                              firstHalf={firstHalf}
+                              secondHalf={secondHalf}
+                              category={catTitle}
+                              isSelected={isSelected}
+                              onClickFunc={() => handleSelect(book.title)}
+                              onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                            />
+                    })
+                    }
+                </Wrapper>  
+                
             </>
 }
 
@@ -73,38 +73,22 @@ const ClearButton = Styled.button`
     padding: 10px;
 `;
 
-const Ul = Styled.ul`
+const Wrapper = Styled.ul`
     position: absolute;
+    width: 350px;
     top: 3.5rem;
-    border 1px solid #b8b8b8;
     border-radius: 4px;
-   
-`;
-
-const Li = Styled.li`
-  line-height: 22px;
-  padding: 10px;
+    -webkit-box-shadow: 1px 5px 18px -3px rgba(0,0,0,0.81); 
+    box-shadow: 1px 5px 18px -3px rgba(0,0,0,0.81);
 `;
 
 const Input = Styled.input`
     border: 1px solid #b8b8b8;
-    width: 300px;
+    width: 350px;
     border-radius: 4px;
     padding: 10px;
     font-family: 'Poppins', sans-serif;
     font-size: 1rem;
-`;
-
-const Prediction = Styled.span`
-    font-weight: bold;
-`;
-
-const Cat = Styled.p`
-    color: purple;
-    font-style: italic;
-    font-size: 0.8rem;
-    font-weight: bold;
-    font-family: 'Poppins', sans-serif;
 `;
 
 export default Typeahead;
